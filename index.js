@@ -30,12 +30,19 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const serviceCollection = client.db("tourServiceDB").collection("tourService");
+    const touristSpotsCollection = client.db("tourServiceDB").collection("tourService");
+
+
+    // GET(READ)
+    app.get('/allTouristSpots', async(req, res)=>{
+        const result = await touristSpotsCollection.find().toArray();
+        res.send(result);
+    })
 
     // POST(CREATE/Insert Operation)
     app.post('/addSpots', async(req, res)=>{
         const tourSpot = req.body;
-        const result = await serviceCollection.insertOne(tourSpot);
+        const result = await touristSpotsCollection.insertOne(tourSpot);
         res.send(result);
     })
 
