@@ -41,6 +41,16 @@ async function run() {
       res.send(result)
     })
 
+    // GET (user email)
+    app.get(`/touristspots/:email`, async(req, res)=>{
+      const email = req.params.email;
+      const query = {email:email}
+      const result = await touristSpotsCollection.find(query).toArray()
+      res.send(result)
+
+    })
+
+
     // GET(READ ALL)
     app.get('/allTouristSpots', async (req, res) => {
       const result = await touristSpotsCollection.find().toArray();
