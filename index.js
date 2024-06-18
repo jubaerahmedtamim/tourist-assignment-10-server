@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -8,8 +8,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json())
 
-app.get('/', (req, res)=>{
-    res.send("Tourist server is running...");
+app.get('/', (req, res) => {
+  res.send("Tourist server is running...");
 })
 // GreenExcursion 
 // 9LppdiqyTziXrJyW
@@ -33,17 +33,48 @@ async function run() {
     const touristSpotsCollection = client.db("tourServiceDB").collection("tourService");
 
 
-    // GET(READ)
-    app.get('/allTouristSpots', async(req, res)=>{
-        const result = await touristSpotsCollection.find().toArray();
-        res.send(result);
+    // GET (Single data)
+    app.get(`/spot/:id`, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await touristSpotsCollection.findOne(query)
+      res.send(result)
+    })
+
+    // GET(READ ALL)
+    app.get('/allTouristSpots', async (req, res) => {
+      const result = await touristSpotsCollection.find().toArray();
+      res.send(result);
     })
 
     // POST(CREATE/Insert Operation)
-    app.post('/addSpots', async(req, res)=>{
-        const tourSpot = req.body;
-        const result = await touristSpotsCollection.insertOne(tourSpot);
-        res.send(result);
+    app.post('/addSpots', async (req, res) => {
+      const tourSpot = req.body;
+      const result = await touristSpotsCollection.insertOne(tourSpot);
+      res.send(result);
+    })
+
+    // PUT (UPDATE one)
+    app.put('/spot/:id', async (req, res) => {
+      const id = req.params.id;
+      const touristSpot = req.body;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updateTouristSpot = {
+        $set: {
+          imageURL:touristSpot.imageURL,
+          description:touristSpot.description,
+          spot_name:touristSpot.spot_name,
+          average_cost:touristSpot.average_cost,
+          seasonality:touristSpot.seasonality,
+          country_name:touristSpot.country_name,
+          location:touristSpot.location,
+          travel_time:touristSpot.travel_time,
+          total_Visitor_Year:touristSpot.total_Visitor_Year,
+        }
+      }
+      const result = await touristSpotsCollection.updateOne(filter, updateTouristSpot, options)
+      res.send(result)
     })
 
 
@@ -67,6 +98,6 @@ run().catch(console.dir);
 
 
 
-app.listen(port, ()=>{
-    console.log(`Tourist server is running on port: ${port}`);
+app.listen(port, () => {
+  console.log(`Tourist server is running on port: ${port}`);
 })
