@@ -31,9 +31,10 @@ async function run() {
     await client.connect();
 
     const touristSpotsCollection = client.db("tourServiceDB").collection("tourService");
+    const countriesCollection = client.db("tourServiceDB").collection('countriesTour');
 
 
-    // GET (Single data)
+    // GET (Single data using id)
     app.get(`/spot/:id`, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -95,8 +96,22 @@ async function run() {
       res.send(result)
     })
 
+    // countries Collection
+    // READ ALL 
+    app.get('/countries', async(req, res)=>{
+      const result = await countriesCollection.find().toArray();
+      res.send(result)
+    })
 
-
+    // READ by country name 
+    app.get('/allTouristSpotsByCountry', async(req, res)=>{
+      let query = {}
+      if(req.query?.country_name){
+        query = { country_name: req.query.country_name}
+      }
+      const result = await touristSpotsCollection.find(query).toArray();
+      res.send(result)
+    })
 
 
 
